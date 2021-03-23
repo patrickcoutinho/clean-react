@@ -4,6 +4,9 @@
   "main": "index.js",
   "author": "Patrick Coutinho <patrick@istyle.com.br>",
   "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.21",
     "@types/node": "^14.14.35",
