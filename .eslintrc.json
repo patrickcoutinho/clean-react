@@ -6,6 +6,12 @@
   "rules": {
     "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/stric-boolean-expressions": "off",
-    "quotes": [0, "single"]
+    "@typescript-eslint/quotes": [
+      "error",
+      "single",
+      {
+        "allowTemplateLiterals": true
+      }
+    ]
   }
 }
