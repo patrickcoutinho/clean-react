@@ -1,4 +1,4 @@
-import HttpPostClientSpy from "../../mocks/http-client";
+import HttpPostClientSpy from '../../mocks/http-client';
 import RemoteAuthentication from './remote-authentication';
 
 type SutTypes = {
