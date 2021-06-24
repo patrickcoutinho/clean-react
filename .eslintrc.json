@@ -1,10 +1,19 @@
 {
-  "extends": "airbnb-with-typescript",
+  "extends": "eslint-config-airbnb-typescript",
   "parserOptions": {
     "project": "./tsconfig.json"
   },
   "rules": {
     "@typescript-eslint/consistent-type-definitions": "off",
-    "@typescript-eslint/stric-boolean-expressions": "off"
+    "@typescript-eslint/stric-boolean-expressions": "off",
+    "import/prefer-default-export": "off",
+    "quotes": "off",
+    "@typescript-eslint/quotes": [
+      "error",
+      "single",
+      {
+        "allowTemplateLiterals": true
+      }
+    ]
   }
 }
