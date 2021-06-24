@@ -5,13 +5,6 @@
   },
   "rules": {
     "@typescript-eslint/consistent-type-definitions": "off",
-    "@typescript-eslint/stric-boolean-expressions": "off",
-    "@typescript-eslint/quotes": [
-      "error",
-      "single",
-      {
-        "allowTemplateLiterals": true
-      }
-    ]
+    "@typescript-eslint/stric-boolean-expressions": "off"
   }
 }
