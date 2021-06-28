@@ -8,6 +8,7 @@
     "@typescript-eslint/stric-boolean-expressions": "off",
     "import/prefer-default-export": "off",
     "quotes": "off",
+    "import/no-cycle": "off",
     "@typescript-eslint/quotes": [
       "error",
       "single",
