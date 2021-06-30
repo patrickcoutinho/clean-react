@@ -9,6 +9,7 @@
     "import/prefer-default-export": "off",
     "quotes": "off",
     "import/no-cycle": "off",
+    "class-methods-use-this": "off",
     "@typescript-eslint/quotes": [
       "error",
       "single",
