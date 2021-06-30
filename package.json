@@ -5,7 +5,8 @@
   "author": "Patrick Coutinho <patrick@istyle.com.br>",
   "license": "MIT",
   "scripts": {
-    "test": "jest --passWithNoTests",
+    "start": "webpack-dev-server --open",
+    "test": "jest --passWithNoTests --no-cache --runInBand",
     "test:watch": "npm test -- --watch",
     "test:staged": "npm test -- --findRelatedTests",
     "test:ci": "npm test -- --coverage"
@@ -17,6 +18,7 @@
     "@types/react": "^17.0.11",
     "@types/react-dom": "^17.0.8",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
     "eslint": "^7.22.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-plugin-import": "^2.23.4",
