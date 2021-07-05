@@ -5,7 +5,10 @@ type Props = React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>
 
 const Input: React.FC<Props> = (props: Props) => (
   <div className={Styles.inputWrapper}>
-    <input {...props} />
+    <input
+      {...props}
+      autoComplete="new-password"
+    />
     <span className={Styles.status}>🔴</span>
   </div>
 );
