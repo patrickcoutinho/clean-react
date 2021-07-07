@@ -16,6 +16,7 @@ type SubjectTypes = {
 
 const makeSubject = (): SubjectTypes => {
   const validationSpy = new ValidationSpy();
+  validationSpy.errorMessage = faker.random.words();
   const subject = render(<Login validation={validationSpy} />);
 
   return {
@@ -28,7 +29,7 @@ describe('Login Page', () => {
   afterEach(cleanup);
 
   test('Should start with initial state', () => {
-    const { subject } = makeSubject();
+    const { subject, validationSpy } = makeSubject();
 
     const errorWrapper = subject.getByTestId('error-wrapper');
     expect(errorWrapper.childElementCount).toBe(0);
@@ -37,7 +38,7 @@ describe('Login Page', () => {
     expect(submitButtom.disabled).toBe(true);
 
     const emailStatus = subject.getByTestId('email-status');
-    expect(emailStatus.title).toBe('Campo obrigatório');
+    expect(emailStatus.title).toBe(validationSpy.errorMessage);
 
     const passwordlStatus = subject.getByTestId('password-status');
     expect(passwordlStatus.title).toBe('Campo obrigatório');
@@ -63,5 +64,17 @@ describe('Login Page', () => {
 
     expect(validationSpy.field).toBe('password');
     expect(validationSpy.value).toBe(password);
+  });
+
+  test('Should show email error id validation fails', () => {
+    const { subject, validationSpy } = makeSubject();
+    const emailInput = subject.getByTestId('email');
+
+    fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
+
+    const emailStatus = subject.getByTestId('email-status');
+
+    expect(emailStatus.title).toBe(validationSpy.errorMessage);
+    expect(emailStatus.textContent).toBe('🔴');
   });
 });
