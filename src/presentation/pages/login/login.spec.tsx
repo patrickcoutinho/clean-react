@@ -54,7 +54,7 @@ describe('Login Page', () => {
     expect(passwordlStatus.title).toBe('Campo obrigatório');
   });
 
-  test('Should call Validation with correct value', () => {
+  test('Should call Validation with correct email', () => {
     const { subject, validationSpy } = makeSubject();
     const emailInput = subject.getByTestId('email');
     const email = faker.internet.email();
@@ -63,6 +63,18 @@ describe('Login Page', () => {
 
     expect(validationSpy.input).toEqual({
       email,
+    });
+  });
+
+  test('Should call Validation with correct password', () => {
+    const { subject, validationSpy } = makeSubject();
+    const passwordInput = subject.getByTestId('password');
+    const password = faker.internet.password();
+
+    fireEvent.input(passwordInput, { target: { value: password } });
+
+    expect(validationSpy.input).toEqual({
+      password,
     });
   });
 });
