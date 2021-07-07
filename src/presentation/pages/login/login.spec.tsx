@@ -12,10 +12,14 @@ import Login from './login';
 class ValidationSpy implements Validation {
   errorMessage: string;
 
-  input: object;
+  field: string;
 
-  validate(input: object): string {
-    this.input = input;
+  value: string;
+
+  validate(field: string, value: string): string {
+    this.field = field;
+    this.value = value;
+
     return this.errorMessage;
   }
 }
@@ -61,9 +65,8 @@ describe('Login Page', () => {
 
     fireEvent.input(emailInput, { target: { value: email } });
 
-    expect(validationSpy.input).toEqual({
-      email,
-    });
+    expect(validationSpy.field).toBe('email');
+    expect(validationSpy.value).toBe(email);
   });
 
   test('Should call Validation with correct password', () => {
@@ -73,8 +76,7 @@ describe('Login Page', () => {
 
     fireEvent.input(passwordInput, { target: { value: password } });
 
-    expect(validationSpy.input).toEqual({
-      password,
-    });
+    expect(validationSpy.field).toBe('password');
+    expect(validationSpy.value).toBe(password);
   });
 });
