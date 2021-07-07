@@ -1,20 +1,43 @@
 import React from 'react';
-import { render, RenderResult } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  RenderResult,
+} from '@testing-library/react';
+import faker from 'faker';
+import { Validation } from '@/presentation/protocols/validation';
 import Login from './login';
+
+class ValidationSpy implements Validation {
+  errorMessage: string;
+
+  input: object;
+
+  validate(input: object): string {
+    this.input = input;
+    return this.errorMessage;
+  }
+}
 
 type SubjectTypes = {
   subject: RenderResult
+  validationSpy: ValidationSpy
 };
 
 const makeSubject = (): SubjectTypes => {
-  const subject = render(<Login />);
+  const validationSpy = new ValidationSpy();
+  const subject = render(<Login validation={validationSpy} />);
 
   return {
     subject,
+    validationSpy,
   };
 };
 
 describe('Login Page', () => {
+  afterEach(cleanup);
+
   test('Should start with initial state', () => {
     const { subject } = makeSubject();
 
@@ -29,5 +52,17 @@ describe('Login Page', () => {
 
     const passwordlStatus = subject.getByTestId('password-status');
     expect(passwordlStatus.title).toBe('Campo obrigatório');
+  });
+
+  test('Should call Validation with correct value', () => {
+    const { subject, validationSpy } = makeSubject();
+    const emailInput = subject.getByTestId('email');
+    const email = faker.internet.email();
+
+    fireEvent.input(emailInput, { target: { value: email } });
+
+    expect(validationSpy.input).toEqual({
+      email,
+    });
   });
 });
