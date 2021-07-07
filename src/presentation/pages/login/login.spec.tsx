@@ -6,23 +6,8 @@ import {
   RenderResult,
 } from '@testing-library/react';
 import faker from 'faker';
-import { Validation } from '@/presentation/protocols/validation';
+import { ValidationSpy } from '@/presentation/mocks';
 import Login from './login';
-
-class ValidationSpy implements Validation {
-  errorMessage: string;
-
-  field: string;
-
-  value: string;
-
-  validate(field: string, value: string): string {
-    this.field = field;
-    this.value = value;
-
-    return this.errorMessage;
-  }
-}
 
 type SubjectTypes = {
   subject: RenderResult
