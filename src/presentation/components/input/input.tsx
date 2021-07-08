@@ -16,9 +16,9 @@ const Input: React.FC<Props> = (props: Props) => {
     });
   };
 
-  const getStatus = (): string => '🔴';
+  const getStatus = (): string => (error[name] ? '🔴' : '🟢');
 
-  const getError = (): string => error[name];
+  const getError = (): string => error[name] || 'Tudo certo!';
 
   return (
     <div className={Styles.inputWrapper}>
