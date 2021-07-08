@@ -6,22 +6,23 @@ import {
   RenderResult,
 } from '@testing-library/react';
 import faker from 'faker';
-import { ValidationSpy } from '@/presentation/mocks';
+import { ValidationStub } from '@/presentation/mocks';
 import Login from './login';
 
 type SubjectTypes = {
   subject: RenderResult
-  validationSpy: ValidationSpy
+  validationStub: ValidationStub
 };
 
 const makeSubject = (): SubjectTypes => {
-  const validationSpy = new ValidationSpy();
-  validationSpy.errorMessage = faker.random.words();
-  const subject = render(<Login validation={validationSpy} />);
+  const validationStub = new ValidationStub();
+  validationStub.errorMessage = faker.random.words();
+
+  const subject = render(<Login validation={validationStub} />);
 
   return {
     subject,
-    validationSpy,
+    validationStub,
   };
 };
 
@@ -29,7 +30,7 @@ describe('Login Page', () => {
   afterEach(cleanup);
 
   test('Should start with initial state', () => {
-    const { subject, validationSpy } = makeSubject();
+    const { subject, validationStub } = makeSubject();
 
     const errorWrapper = subject.getByTestId('error-wrapper');
     expect(errorWrapper.childElementCount).toBe(0);
@@ -38,43 +39,33 @@ describe('Login Page', () => {
     expect(submitButtom.disabled).toBe(true);
 
     const emailStatus = subject.getByTestId('email-status');
-    expect(emailStatus.title).toBe(validationSpy.errorMessage);
+    expect(emailStatus.title).toBe(validationStub.errorMessage);
 
     const passwordlStatus = subject.getByTestId('password-status');
-    expect(passwordlStatus.title).toBe('Campo obrigatório');
+    expect(passwordlStatus.title).toBe(validationStub.errorMessage);
   });
 
-  test('Should call Validation with correct email', () => {
-    const { subject, validationSpy } = makeSubject();
-    const emailInput = subject.getByTestId('email');
-    const email = faker.internet.email();
-
-    fireEvent.input(emailInput, { target: { value: email } });
-
-    expect(validationSpy.field).toBe('email');
-    expect(validationSpy.value).toBe(email);
-  });
-
-  test('Should call Validation with correct password', () => {
-    const { subject, validationSpy } = makeSubject();
-    const passwordInput = subject.getByTestId('password');
-    const password = faker.internet.password();
-
-    fireEvent.input(passwordInput, { target: { value: password } });
-
-    expect(validationSpy.field).toBe('password');
-    expect(validationSpy.value).toBe(password);
-  });
-
-  test('Should show email error id validation fails', () => {
-    const { subject, validationSpy } = makeSubject();
+  test('Should show email error if validation fails', () => {
+    const { subject, validationStub } = makeSubject();
     const emailInput = subject.getByTestId('email');
 
     fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
 
     const emailStatus = subject.getByTestId('email-status');
 
-    expect(emailStatus.title).toBe(validationSpy.errorMessage);
+    expect(emailStatus.title).toBe(validationStub.errorMessage);
     expect(emailStatus.textContent).toBe('🔴');
+  });
+
+  test('Should show password error if validation fails', () => {
+    const { subject, validationStub } = makeSubject();
+    const passwordInput = subject.getByTestId('password');
+
+    fireEvent.input(passwordInput, { target: { value: faker.internet.password() } });
+
+    const passwordStatus = subject.getByTestId('password-status');
+
+    expect(passwordStatus.title).toBe(validationStub.errorMessage);
+    expect(passwordStatus.textContent).toBe('🔴');
   });
 });
