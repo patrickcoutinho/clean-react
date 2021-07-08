@@ -116,4 +116,22 @@ describe('Login Page', () => {
 
     expect(submitButton.disabled).toBe(false);
   });
+
+  test('Should show spinnner on submit', () => {
+    const { subject } = makeSubject();
+
+    const emailInput = subject.getByTestId('email');
+    fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
+
+    const passwordInput = subject.getByTestId('password');
+    fireEvent.input(passwordInput, { target: { value: faker.internet.password() } });
+
+    const submitButton = subject.getByText(/Entrar/);
+
+    fireEvent.click(submitButton);
+
+    const spinner = subject.getByTestId('spinner');
+
+    expect(spinner).toBeTruthy();
+  });
 });
