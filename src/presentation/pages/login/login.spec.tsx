@@ -11,26 +11,30 @@ import Login from './login';
 
 type SubjectTypes = {
   subject: RenderResult
-  validationStub: ValidationStub
 };
 
-const makeSubject = (): SubjectTypes => {
+type SubjectParams = {
+  validationErrror: string
+};
+
+const makeSubject = (params?: SubjectParams): SubjectTypes => {
   const validationStub = new ValidationStub();
-  validationStub.errorMessage = faker.random.words();
+  validationStub.errorMessage = params?.validationErrror;
 
   const subject = render(<Login validation={validationStub} />);
 
-  return {
-    subject,
-    validationStub,
-  };
+  return { subject };
 };
+
+const validationError = faker.random.words();
 
 describe('Login Page', () => {
   afterEach(cleanup);
 
   test('Should start with initial state', () => {
-    const { subject, validationStub } = makeSubject();
+    const { subject } = makeSubject({
+      validationErrror: validationError,
+    });
 
     const errorWrapper = subject.getByTestId('error-wrapper');
     expect(errorWrapper.childElementCount).toBe(0);
@@ -39,39 +43,42 @@ describe('Login Page', () => {
     expect(submitButtom.disabled).toBe(true);
 
     const emailStatus = subject.getByTestId('email-status');
-    expect(emailStatus.title).toBe(validationStub.errorMessage);
+    expect(emailStatus.title).toBe(validationError);
 
     const passwordlStatus = subject.getByTestId('password-status');
-    expect(passwordlStatus.title).toBe(validationStub.errorMessage);
+    expect(passwordlStatus.title).toBe(validationError);
   });
 
   test('Should show email error if validation fails', () => {
-    const { subject, validationStub } = makeSubject();
+    const { subject } = makeSubject({
+      validationErrror: validationError,
+    });
     const emailInput = subject.getByTestId('email');
 
     fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
 
     const emailStatus = subject.getByTestId('email-status');
 
-    expect(emailStatus.title).toBe(validationStub.errorMessage);
+    expect(emailStatus.title).toBe(validationError);
     expect(emailStatus.textContent).toBe('🔴');
   });
 
   test('Should show password error if validation fails', () => {
-    const { subject, validationStub } = makeSubject();
+    const { subject } = makeSubject({
+      validationErrror: validationError,
+    });
     const passwordInput = subject.getByTestId('password');
 
     fireEvent.input(passwordInput, { target: { value: faker.internet.password() } });
 
     const passwordStatus = subject.getByTestId('password-status');
 
-    expect(passwordStatus.title).toBe(validationStub.errorMessage);
+    expect(passwordStatus.title).toBe(validationError);
     expect(passwordStatus.textContent).toBe('🔴');
   });
 
   test('Should show valid email if validation succeeds', () => {
-    const { subject, validationStub } = makeSubject();
-    validationStub.errorMessage = null;
+    const { subject } = makeSubject();
 
     const emailInput = subject.getByTestId('email');
 
@@ -84,8 +91,7 @@ describe('Login Page', () => {
   });
 
   test('Should show valid password if validation succeeds', () => {
-    const { subject, validationStub } = makeSubject();
-    validationStub.errorMessage = null;
+    const { subject } = makeSubject();
 
     const passwordInput = subject.getByTestId('password');
 
@@ -98,8 +104,7 @@ describe('Login Page', () => {
   });
 
   test('Should enable submit button if form is valid', () => {
-    const { subject, validationStub } = makeSubject();
-    validationStub.errorMessage = null;
+    const { subject } = makeSubject();
 
     const emailInput = subject.getByTestId('email');
     fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
