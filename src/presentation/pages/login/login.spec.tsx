@@ -10,6 +10,7 @@ import faker from 'faker';
 import { ValidationStub, AuthenticationSpy } from '@/presentation/mocks';
 import { InvalidCredentialsError } from '@/domain/errors';
 import Login from './login';
+import 'jest-localstorage-mock';
 
 type SubjectTypes = {
   subject: RenderResult
@@ -78,6 +79,9 @@ const validationError = faker.random.words();
 
 describe('Login Page', () => {
   afterEach(cleanup);
+  beforeEach(() => {
+    localStorage.clear();
+  });
 
   test('Should start with initial state', () => {
     const { subject } = makeSubject({
@@ -195,5 +199,18 @@ describe('Login Page', () => {
 
     expect(errorMessage.textContent).toBe(error.message);
     expect(errorWrapper.childElementCount).toBe(1);
+  });
+
+  test('Should add accessToken to localstorage on authentication success', async () => {
+    const { subject, authenticationSpy } = makeSubject();
+
+    simulateValidSubmit(subject);
+
+    await waitFor(() => subject.getByTestId('form'));
+
+    expect(localStorage.setItem).toBeCalledWith(
+      'accessToken',
+      authenticationSpy.account.accessToken,
+    );
   });
 });
