@@ -4,9 +4,11 @@ import {
   fireEvent,
   render,
   RenderResult,
+  waitFor,
 } from '@testing-library/react';
 import faker from 'faker';
 import { ValidationStub, AuthenticationSpy } from '@/presentation/mocks';
+import { InvalidCredentialsError } from '@/domain/errors';
 import Login from './login';
 
 type SubjectTypes = {
@@ -172,5 +174,26 @@ describe('Login Page', () => {
     fireEvent.submit(form);
 
     expect(authenticationSpy.callsCount).toBe(0);
+  });
+
+  test('Should present error is Authentication fails', async () => {
+    const { subject, authenticationSpy } = makeSubject();
+
+    const error = new InvalidCredentialsError();
+
+    jest.spyOn(authenticationSpy, 'auth').mockReturnValueOnce(
+      Promise.reject(error),
+    );
+
+    simulateValidSubmit(subject);
+
+    const errorWrapper = subject.getByTestId('error-wrapper');
+
+    await waitFor(() => errorWrapper);
+
+    const errorMessage = subject.getByTestId('error-message');
+
+    expect(errorMessage.textContent).toBe(error.message);
+    expect(errorWrapper.childElementCount).toBe(1);
   });
 });
