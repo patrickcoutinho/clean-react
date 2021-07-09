@@ -161,4 +161,16 @@ describe('Login Page', () => {
 
     expect(authenticationSpy.callsCount).toBe(1);
   });
+
+  test('Should not call Authentication if form is invalid', () => {
+    const { subject, authenticationSpy } = makeSubject({
+      validationErrror: validationError,
+    });
+
+    populateEmailInput(subject);
+    const form = subject.getByTestId('form');
+    fireEvent.submit(form);
+
+    expect(authenticationSpy.callsCount).toBe(0);
+  });
 });
