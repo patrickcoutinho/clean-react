@@ -152,4 +152,13 @@ describe('Login Page', () => {
       password,
     });
   });
+
+  test('Should call Authentication only once', () => {
+    const { subject, authenticationSpy } = makeSubject();
+
+    simulateValidSubmit(subject);
+    simulateValidSubmit(subject);
+
+    expect(authenticationSpy.callsCount).toBe(1);
+  });
 });
