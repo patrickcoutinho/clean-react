@@ -30,6 +30,48 @@ const makeSubject = (params?: SubjectParams): SubjectTypes => {
   return { subject, authenticationSpy };
 };
 
+type SimulateValidSubmitTypes = {
+  email: string
+  password: string
+};
+
+const populateEmailInput = (subject: RenderResult): string => {
+  const email = faker.internet.email();
+  const emailInput = subject.getByTestId('email');
+  fireEvent.input(emailInput, { target: { value: email } });
+
+  return email;
+};
+
+const populatePasswordInput = (subject: RenderResult): string => {
+  const password = faker.internet.password();
+  const passwordInput = subject.getByTestId('password');
+  fireEvent.input(passwordInput, { target: { value: password } });
+
+  return password;
+};
+
+const simulateValidSubmit = (subject: RenderResult): SimulateValidSubmitTypes => {
+  const email = populateEmailInput(subject);
+  const password = populatePasswordInput(subject);
+
+  const submitButton = subject.getByText(/Entrar/);
+  fireEvent.click(submitButton);
+
+  return { email, password };
+};
+
+const simulateStatusForField = (
+  subject: RenderResult,
+  fieldName: string,
+  validationError?: string,
+): void => {
+  const fieldStatus = subject.getByTestId(`${fieldName}-status`);
+
+  expect(fieldStatus.title).toBe(validationError || 'Tudo certo!');
+  expect(fieldStatus.textContent).toBe(validationError ? '🔴' : '🟢');
+};
+
 const validationError = faker.random.words();
 
 describe('Login Page', () => {
@@ -46,75 +88,47 @@ describe('Login Page', () => {
     const submitButtom = subject.getByText(/Entrar/) as HTMLButtonElement;
     expect(submitButtom.disabled).toBe(true);
 
-    const emailStatus = subject.getByTestId('email-status');
-    expect(emailStatus.title).toBe(validationError);
-
-    const passwordlStatus = subject.getByTestId('password-status');
-    expect(passwordlStatus.title).toBe(validationError);
+    simulateStatusForField(subject, 'email', validationError);
+    simulateStatusForField(subject, 'password', validationError);
   });
 
   test('Should show email error if validation fails', () => {
     const { subject } = makeSubject({
       validationErrror: validationError,
     });
-    const emailInput = subject.getByTestId('email');
 
-    fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
-
-    const emailStatus = subject.getByTestId('email-status');
-
-    expect(emailStatus.title).toBe(validationError);
-    expect(emailStatus.textContent).toBe('🔴');
+    populateEmailInput(subject);
+    simulateStatusForField(subject, 'email', validationError);
   });
 
   test('Should show password error if validation fails', () => {
     const { subject } = makeSubject({
       validationErrror: validationError,
     });
-    const passwordInput = subject.getByTestId('password');
 
-    fireEvent.input(passwordInput, { target: { value: faker.internet.password() } });
-
-    const passwordStatus = subject.getByTestId('password-status');
-
-    expect(passwordStatus.title).toBe(validationError);
-    expect(passwordStatus.textContent).toBe('🔴');
+    populatePasswordInput(subject);
+    simulateStatusForField(subject, 'password', validationError);
   });
 
   test('Should show valid email if validation succeeds', () => {
     const { subject } = makeSubject();
 
-    const emailInput = subject.getByTestId('email');
-
-    fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
-
-    const emailStatus = subject.getByTestId('email-status');
-
-    expect(emailStatus.title).toBe('Tudo certo!');
-    expect(emailStatus.textContent).toBe('🟢');
+    populateEmailInput(subject);
+    simulateStatusForField(subject, 'email');
   });
 
   test('Should show valid password if validation succeeds', () => {
     const { subject } = makeSubject();
 
-    const passwordInput = subject.getByTestId('password');
-
-    fireEvent.input(passwordInput, { target: { value: faker.internet.password() } });
-
-    const passwordStatus = subject.getByTestId('password-status');
-
-    expect(passwordStatus.title).toBe('Tudo certo!');
-    expect(passwordStatus.textContent).toBe('🟢');
+    populatePasswordInput(subject);
+    simulateStatusForField(subject, 'password');
   });
 
   test('Should enable submit button if form is valid', () => {
     const { subject } = makeSubject();
 
-    const emailInput = subject.getByTestId('email');
-    fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
-
-    const passwordInput = subject.getByTestId('password');
-    fireEvent.input(passwordInput, { target: { value: faker.internet.password() } });
+    populateEmailInput(subject);
+    populatePasswordInput(subject);
 
     const submitButton = subject.getByText(/Entrar/) as HTMLButtonElement;
 
@@ -123,17 +137,7 @@ describe('Login Page', () => {
 
   test('Should show spinnner on submit', () => {
     const { subject } = makeSubject();
-
-    const emailInput = subject.getByTestId('email');
-    fireEvent.input(emailInput, { target: { value: faker.internet.email() } });
-
-    const passwordInput = subject.getByTestId('password');
-    fireEvent.input(passwordInput, { target: { value: faker.internet.password() } });
-
-    const submitButton = subject.getByText(/Entrar/);
-
-    fireEvent.click(submitButton);
-
+    simulateValidSubmit(subject);
     const spinner = subject.getByTestId('spinner');
 
     expect(spinner).toBeTruthy();
@@ -141,17 +145,7 @@ describe('Login Page', () => {
 
   test('Should call Authentication with correct values', () => {
     const { subject, authenticationSpy } = makeSubject();
-
-    const email = faker.internet.email();
-    const emailInput = subject.getByTestId('email');
-    fireEvent.input(emailInput, { target: { value: email } });
-
-    const password = faker.internet.password();
-    const passwordInput = subject.getByTestId('password');
-    fireEvent.input(passwordInput, { target: { value: password } });
-
-    const submitButton = subject.getByText(/Entrar/);
-    fireEvent.click(submitButton);
+    const { email, password } = simulateValidSubmit(subject);
 
     expect(authenticationSpy.params).toEqual({
       email,
