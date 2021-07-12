@@ -24,7 +24,7 @@ type SubjectParams = {
   validationErrror: string
 };
 
-const history = createMemoryHistory();
+const history = createMemoryHistory({ initialEntries: ['/login'] });
 
 const makeSubject = (params?: SubjectParams): SubjectTypes => {
   const validationStub = new ValidationStub();
@@ -220,6 +220,9 @@ describe('Login Page', () => {
       'accessToken',
       authenticationSpy.account.accessToken,
     );
+
+    expect(history.length).toBe(1);
+    expect(history.location.pathname).toBe('/');
   });
 
   test('Should go to signup page', async () => {
