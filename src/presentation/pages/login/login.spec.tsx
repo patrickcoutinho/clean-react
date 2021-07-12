@@ -62,17 +62,19 @@ const populatePasswordInput = (subject: RenderResult): string => {
   return password;
 };
 
-const simulateValidSubmit = (subject: RenderResult): SimulateValidSubmitTypes => {
+const simulateValidSubmit = async (subject: RenderResult): Promise<SimulateValidSubmitTypes> => {
   const email = populateEmailInput(subject);
   const password = populatePasswordInput(subject);
 
-  const submitButton = subject.getByText(/Entrar/);
-  fireEvent.click(submitButton);
+  const form = subject.getByTestId('form');
+  fireEvent.submit(form);
+
+  await waitFor(() => form);
 
   return { email, password };
 };
 
-const simulateStatusForField = (
+const testStatusForField = (
   subject: RenderResult,
   fieldName: string,
   validationError?: string,
@@ -81,6 +83,34 @@ const simulateStatusForField = (
 
   expect(fieldStatus.title).toBe(validationError || 'Tudo certo!');
   expect(fieldStatus.textContent).toBe(validationError ? '🔴' : '🟢');
+};
+
+const testErrorWrapperChildCount = (subject: RenderResult, count: number): void => {
+  const errorWrapper = subject.getByTestId('error-wrapper');
+  expect(errorWrapper.childElementCount).toBe(count);
+};
+
+const testElementExists = (subject: RenderResult, elementTestId: string): void => {
+  const element = subject.getByTestId(elementTestId);
+  expect(element).toBeTruthy();
+};
+
+const testElementText = (
+  subject: RenderResult,
+  elementTestId: string,
+  text: string,
+): void => {
+  const element = subject.getByTestId(elementTestId);
+  expect(element.textContent).toBe(text);
+};
+
+const testButtonIsDisabled = (
+  subject: RenderResult,
+  elementTestId: string,
+  isDisabled: boolean,
+): void => {
+  const submitButtom = subject.getByTestId(elementTestId) as HTMLButtonElement;
+  expect(submitButtom.disabled).toBe(isDisabled);
 };
 
 const validationError = faker.random.words();
@@ -96,14 +126,10 @@ describe('Login Page', () => {
       validationErrror: validationError,
     });
 
-    const errorWrapper = subject.getByTestId('error-wrapper');
-    expect(errorWrapper.childElementCount).toBe(0);
-
-    const submitButtom = subject.getByText(/Entrar/) as HTMLButtonElement;
-    expect(submitButtom.disabled).toBe(true);
-
-    simulateStatusForField(subject, 'email', validationError);
-    simulateStatusForField(subject, 'password', validationError);
+    testErrorWrapperChildCount(subject, 0);
+    testButtonIsDisabled(subject, 'login-button', true);
+    testStatusForField(subject, 'email', validationError);
+    testStatusForField(subject, 'password', validationError);
   });
 
   test('Should show email error if validation fails', () => {
@@ -112,7 +138,7 @@ describe('Login Page', () => {
     });
 
     populateEmailInput(subject);
-    simulateStatusForField(subject, 'email', validationError);
+    testStatusForField(subject, 'email', validationError);
   });
 
   test('Should show password error if validation fails', () => {
@@ -121,21 +147,21 @@ describe('Login Page', () => {
     });
 
     populatePasswordInput(subject);
-    simulateStatusForField(subject, 'password', validationError);
+    testStatusForField(subject, 'password', validationError);
   });
 
   test('Should show valid email if validation succeeds', () => {
     const { subject } = makeSubject();
 
     populateEmailInput(subject);
-    simulateStatusForField(subject, 'email');
+    testStatusForField(subject, 'email');
   });
 
   test('Should show valid password if validation succeeds', () => {
     const { subject } = makeSubject();
 
     populatePasswordInput(subject);
-    simulateStatusForField(subject, 'password');
+    testStatusForField(subject, 'password');
   });
 
   test('Should enable submit button if form is valid', () => {
@@ -144,22 +170,19 @@ describe('Login Page', () => {
     populateEmailInput(subject);
     populatePasswordInput(subject);
 
-    const submitButton = subject.getByText(/Entrar/) as HTMLButtonElement;
-
-    expect(submitButton.disabled).toBe(false);
+    testButtonIsDisabled(subject, 'login-button', false);
   });
 
-  test('Should show spinnner on submit', () => {
+  test('Should show spinnner on submit', async () => {
     const { subject } = makeSubject();
-    simulateValidSubmit(subject);
-    const spinner = subject.getByTestId('spinner');
+    await simulateValidSubmit(subject);
 
-    expect(spinner).toBeTruthy();
+    testElementExists(subject, 'spinner');
   });
 
-  test('Should call Authentication with correct values', () => {
+  test('Should call Authentication with correct values', async () => {
     const { subject, authenticationSpy } = makeSubject();
-    const { email, password } = simulateValidSubmit(subject);
+    const { email, password } = await simulateValidSubmit(subject);
 
     expect(authenticationSpy.params).toEqual({
       email,
@@ -167,23 +190,21 @@ describe('Login Page', () => {
     });
   });
 
-  test('Should call Authentication only once', () => {
+  test('Should call Authentication only once', async () => {
     const { subject, authenticationSpy } = makeSubject();
 
-    simulateValidSubmit(subject);
-    simulateValidSubmit(subject);
+    await simulateValidSubmit(subject);
+    await simulateValidSubmit(subject);
 
     expect(authenticationSpy.callsCount).toBe(1);
   });
 
-  test('Should not call Authentication if form is invalid', () => {
+  test('Should not call Authentication if form is invalid', async () => {
     const { subject, authenticationSpy } = makeSubject({
       validationErrror: validationError,
     });
 
-    populateEmailInput(subject);
-    const form = subject.getByTestId('form');
-    fireEvent.submit(form);
+    await simulateValidSubmit(subject);
 
     expect(authenticationSpy.callsCount).toBe(0);
   });
@@ -197,24 +218,16 @@ describe('Login Page', () => {
       Promise.reject(error),
     );
 
-    simulateValidSubmit(subject);
+    await simulateValidSubmit(subject);
 
-    const errorWrapper = subject.getByTestId('error-wrapper');
-
-    await waitFor(() => errorWrapper);
-
-    const errorMessage = subject.getByTestId('error-message');
-
-    expect(errorMessage.textContent).toBe(error.message);
-    expect(errorWrapper.childElementCount).toBe(1);
+    testElementText(subject, 'error-message', error.message);
+    testErrorWrapperChildCount(subject, 1);
   });
 
   test('Should add accessToken to localstorage on authentication success', async () => {
     const { subject, authenticationSpy } = makeSubject();
 
-    simulateValidSubmit(subject);
-
-    await waitFor(() => subject.getByTestId('form'));
+    await simulateValidSubmit(subject);
 
     expect(localStorage.setItem).toBeCalledWith(
       'accessToken',
