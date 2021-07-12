@@ -1,4 +1,7 @@
 import React from 'react';
+import { Router } from 'react-router-dom';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { createMemoryHistory } from 'history';
 import {
   cleanup,
   fireEvent,
@@ -21,13 +24,18 @@ type SubjectParams = {
   validationErrror: string
 };
 
+const history = createMemoryHistory();
+
 const makeSubject = (params?: SubjectParams): SubjectTypes => {
   const validationStub = new ValidationStub();
   const authenticationSpy = new AuthenticationSpy();
   validationStub.errorMessage = params?.validationErrror;
 
   const subject = render(
-    <Login validation={validationStub} authentication={authenticationSpy} />,
+    <Router history={history}>
+      <Login validation={validationStub} authentication={authenticationSpy} />
+      ,
+    </Router>,
   );
 
   return { subject, authenticationSpy };
@@ -212,5 +220,15 @@ describe('Login Page', () => {
       'accessToken',
       authenticationSpy.account.accessToken,
     );
+  });
+
+  test('Should go to signup page', async () => {
+    const { subject } = makeSubject();
+    const signup = subject.getByText(/Criar conta/);
+
+    fireEvent.click(signup);
+
+    expect(history.length).toBe(2);
+    expect(history.location.pathname).toBe('/signup');
   });
 });
