@@ -4,7 +4,7 @@ import { FieldValidation } from '@/validation/protocols';
 export class EmailValidation implements FieldValidation {
   constructor(readonly name: string) {}
 
-  validate(value: string): Error | null {
+  validate(value: string): InvalidFieldError | null {
     const emailRegex: RegExp = /^[^\s@]+@[^\s@]+$/;
     return emailRegex.test(value) ? null : new InvalidFieldError();
   }
