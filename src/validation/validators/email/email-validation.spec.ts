@@ -18,4 +18,11 @@ describe('EmailValidation', () => {
 
     expect(error).toBeFalsy();
   });
+
+  test('Should return falsy if email is empty', () => {
+    const subject = makeSubject();
+    const error = subject.validate('');
+
+    expect(error).toBeFalsy();
+  });
 });
