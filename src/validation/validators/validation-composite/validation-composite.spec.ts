@@ -1,3 +1,4 @@
+import faker from 'faker';
 import { FieldValidationSpy } from '../mocks';
 import { ValidationComposite } from './validation-composite';
 
@@ -6,10 +7,10 @@ type SubjectTypes = {
   fieldValidationSpy: FieldValidationSpy[]
 };
 
-const makeSubject = (): SubjectTypes => {
+const makeSubject = (fieldName: string): SubjectTypes => {
   const fieldValidationSpy = [
-    new FieldValidationSpy('any_field'),
-    new FieldValidationSpy('any_field'),
+    new FieldValidationSpy(fieldName),
+    new FieldValidationSpy(fieldName),
   ];
 
   const subject = new ValidationComposite(fieldValidationSpy);
@@ -17,16 +18,27 @@ const makeSubject = (): SubjectTypes => {
   return { subject, fieldValidationSpy };
 };
 
+const fieldName = faker.database.column();
+const errorMessage = faker.random.words();
+
 describe('ValidationComposite', () => {
-  test('Should return the first error found if any validation fails ', () => {
-    const { subject, fieldValidationSpy } = makeSubject();
+  test('Should return the first error found if any validation fails', () => {
+    const { subject, fieldValidationSpy } = makeSubject(fieldName);
 
     fieldValidationSpy.map((spy, index) => {
-      spy.error = new Error(`${index + 1} error message`);
+      spy.error = new Error(`${index + 1} ${errorMessage}`);
     });
 
-    const error = subject.validate('any_field', 'any_value');
+    const error = subject.validate(fieldName, faker.random.word());
 
-    expect(error).toBe('1 error message');
+    expect(error).toBe(`1 ${errorMessage}`);
+  });
+
+  test('Should return falsy if not found any error', () => {
+    const { subject } = makeSubject(fieldName);
+
+    const error = subject.validate(fieldName, faker.random.word());
+
+    expect(error).toBeFalsy();
   });
 });
