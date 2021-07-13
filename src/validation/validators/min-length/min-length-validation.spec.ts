@@ -8,4 +8,11 @@ describe('MinLengthValidation', () => {
 
     expect(error).toEqual(new InvalidFieldError());
   });
+
+  test('Should return falsy if value is valid', () => {
+    const subject = new MinLengthValidation('field', 6);
+    const error = subject.validate('abcdef');
+
+    expect(error).toBeFalsy();
+  });
 });
