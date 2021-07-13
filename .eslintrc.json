@@ -25,6 +25,7 @@
     "no-console": "off",
     "class-methods-use-this": "off",
     "react/jsx-props-no-spreading": "off",
+    "no-restricted-syntax": "off",
     "@typescript-eslint/quotes": [
       "error",
       "single",
