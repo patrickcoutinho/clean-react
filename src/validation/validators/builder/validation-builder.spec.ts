@@ -26,4 +26,15 @@ describe('ValidationBuilder', () => {
 
     expect(validations).toStrictEqual([new MinLengthValidation(fieldName, 6)]);
   });
+
+  test('Should return a list of validations', () => {
+    const validations = subject.field(fieldName).required().minLength(6).email()
+      .build();
+
+    expect(validations).toStrictEqual([
+      new RequiredFieldValidation(fieldName),
+      new MinLengthValidation(fieldName, 6),
+      new EmailValidation(fieldName),
+    ]);
+  });
 });
