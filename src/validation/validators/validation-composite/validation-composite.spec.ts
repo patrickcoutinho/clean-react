@@ -13,7 +13,7 @@ const makeSubject = (fieldName: string): SubjectTypes => {
     new FieldValidationSpy(fieldName),
   ];
 
-  const subject = new ValidationComposite(fieldValidationSpy);
+  const subject = ValidationComposite.build(fieldValidationSpy);
 
   return { subject, fieldValidationSpy };
 };
