@@ -1,5 +1,5 @@
 import faker from 'faker';
-import { FieldValidationSpy } from '../mocks';
+import { FieldValidationSpy } from '@/validation/mocks/';
 import { ValidationComposite } from './validation-composite';
 
 type SubjectTypes = {
