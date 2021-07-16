@@ -12,7 +12,7 @@ import {
 import faker from 'faker';
 import { ValidationStub, AuthenticationSpy } from '@/presentation/mocks';
 import { InvalidCredentialsError } from '@/domain/errors';
-import Login from './login';
+import { Login } from '@/presentation/pages';
 import 'jest-localstorage-mock';
 
 type SubjectTypes = {
