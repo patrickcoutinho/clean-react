@@ -2,7 +2,7 @@ import { InvalidFieldError } from '@/validation/errors';
 import faker from 'faker';
 import { MinLengthValidation } from './min-length-validation';
 
-const makeSubject = (minLength: number = 6):
+const makeSubject = (minLength: number = 5):
 MinLengthValidation => new MinLengthValidation(faker.database.column(), minLength);
 
 describe('MinLengthValidation', () => {

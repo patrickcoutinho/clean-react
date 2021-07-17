@@ -10,14 +10,18 @@ import {
   waitFor,
 } from '@testing-library/react';
 import faker from 'faker';
-import { ValidationStub, AuthenticationSpy } from '@/presentation/mocks';
+import {
+  ValidationStub,
+  AuthenticationSpy,
+  SaveAccessTokenMock,
+} from '@/presentation/mocks';
 import { InvalidCredentialsError } from '@/domain/errors';
 import { Login } from '@/presentation/pages';
-import 'jest-localstorage-mock';
 
 type SubjectTypes = {
   subject: RenderResult
-  authenticationSpy: AuthenticationSpy
+  authenticationSpy: AuthenticationSpy,
+  saveAccessTokenMock: SaveAccessTokenMock
 };
 
 type SubjectParams = {
@@ -29,16 +33,21 @@ const history = createMemoryHistory({ initialEntries: ['/login'] });
 const makeSubject = (params?: SubjectParams): SubjectTypes => {
   const validationStub = new ValidationStub();
   const authenticationSpy = new AuthenticationSpy();
+  const saveAccessTokenMock = new SaveAccessTokenMock();
   validationStub.errorMessage = params?.validationErrror;
 
   const subject = render(
     <Router history={history}>
-      <Login validation={validationStub} authentication={authenticationSpy} />
+      <Login
+        validation={validationStub}
+        authentication={authenticationSpy}
+        saveAccessToken={saveAccessTokenMock}
+      />
       ,
     </Router>,
   );
 
-  return { subject, authenticationSpy };
+  return { subject, authenticationSpy, saveAccessTokenMock };
 };
 
 type SimulateValidSubmitTypes = {
@@ -117,9 +126,6 @@ const validationError = faker.random.words();
 
 describe('Login Page', () => {
   afterEach(cleanup);
-  beforeEach(() => {
-    localStorage.clear();
-  });
 
   test('Should start with initial state', () => {
     const { subject } = makeSubject({
@@ -224,18 +230,30 @@ describe('Login Page', () => {
     testErrorWrapperChildCount(subject, 1);
   });
 
-  test('Should add accessToken to localstorage on authentication success', async () => {
-    const { subject, authenticationSpy } = makeSubject();
+  test('Should call SaveAccessToken on success', async () => {
+    const { subject, authenticationSpy, saveAccessTokenMock } = makeSubject();
 
     await simulateValidSubmit(subject);
 
-    expect(localStorage.setItem).toBeCalledWith(
-      'accessToken',
-      authenticationSpy.account.accessToken,
-    );
+    expect(saveAccessTokenMock.accessToken).toBe(authenticationSpy.account.accessToken);
 
     expect(history.length).toBe(1);
     expect(history.location.pathname).toBe('/');
+  });
+
+  test('Should present error is SaveAccessToken fails', async () => {
+    const { subject, saveAccessTokenMock } = makeSubject();
+
+    const error = new Error(faker.random.words());
+
+    jest.spyOn(saveAccessTokenMock, 'save').mockReturnValueOnce(
+      Promise.reject(error),
+    );
+
+    await simulateValidSubmit(subject);
+
+    testElementText(subject, 'error-message', error.message);
+    testErrorWrapperChildCount(subject, 1);
   });
 
   test('Should go to signup page', async () => {
