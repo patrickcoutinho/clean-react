@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.com/patrickcoutinho/clean-react.svg?branch=master)](https://travis-ci.com/patrickcoutinho/clean-react) [![Coverage Status](https://coveralls.io/repos/github/patrickcoutinho/clean-react/badge.svg?branch=feat/ci)](https://coveralls.io/github/patrickcoutinho/clean-react?branch=feat/ci)
