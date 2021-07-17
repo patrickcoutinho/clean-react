@@ -1,27 +1,37 @@
-import { SetStorageSpy } from '@/data/mocks';
+import { SetStorageMock } from '@/data/mocks';
 import faker from 'faker';
 import { LocalSaveAccessToken } from './local-save-access-token';
 
 type SubjectTypes = {
   subject: LocalSaveAccessToken
-  setStorageSpy: SetStorageSpy
+  setStorageMock: SetStorageMock
 };
 
 const makeSubject = (): SubjectTypes => {
-  const setStorageSpy = new SetStorageSpy();
-  const subject = new LocalSaveAccessToken(setStorageSpy);
+  const setStorageMock = new SetStorageMock();
+  const subject = new LocalSaveAccessToken(setStorageMock);
 
-  return { subject, setStorageSpy };
+  return { subject, setStorageMock };
 };
 
 describe('LocalSaveAccessToken', () => {
-  test('Should call SetStorage with corret value', async () => {
+  test('Should call SetStorage with correct value', async () => {
     const accessToken = faker.datatype.uuid();
-    const { subject, setStorageSpy } = makeSubject();
+    const { subject, setStorageMock } = makeSubject();
 
     await subject.save(accessToken);
 
-    expect(setStorageSpy.key).toBe('accessToken');
-    expect(setStorageSpy.value).toBe(accessToken);
+    expect(setStorageMock.key).toBe('accessToken');
+    expect(setStorageMock.value).toBe(accessToken);
+  });
+
+  test('Should call SetStorage with correct value', async () => {
+    const accessToken = faker.datatype.uuid();
+    const { subject, setStorageMock } = makeSubject();
+
+    await subject.save(accessToken);
+
+    expect(setStorageMock.key).toBe('accessToken');
+    expect(setStorageMock.value).toBe(accessToken);
   });
 });
