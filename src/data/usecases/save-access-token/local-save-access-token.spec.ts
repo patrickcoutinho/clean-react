@@ -1,14 +1,14 @@
-import { SetSorageSpy } from '@/data/mocks';
+import { SetStorageSpy } from '@/data/mocks';
 import faker from 'faker';
 import { LocalSaveAccessToken } from './local-save-access-token';
 
 type SubjectTypes = {
   subject: LocalSaveAccessToken
-  setStorageSpy: SetSorageSpy
+  setStorageSpy: SetStorageSpy
 };
 
 const makeSubject = (): SubjectTypes => {
-  const setStorageSpy = new SetSorageSpy();
+  const setStorageSpy = new SetStorageSpy();
   const subject = new LocalSaveAccessToken(setStorageSpy);
 
   return { subject, setStorageSpy };

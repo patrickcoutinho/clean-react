@@ -1,6 +1,6 @@
 import { SetStorage } from '@/data/protocols/storage/set-storage';
 
-export class SetSorageSpy implements SetStorage {
+export class SetStorageSpy implements SetStorage {
   key: string;
 
   value: any;
