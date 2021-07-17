@@ -241,6 +241,21 @@ describe('Login Page', () => {
     expect(history.location.pathname).toBe('/');
   });
 
+  test('Should present error is SaveAccessToken fails', async () => {
+    const { subject, saveAccessTokenMock } = makeSubject();
+
+    const error = new Error(faker.random.words());
+
+    jest.spyOn(saveAccessTokenMock, 'save').mockReturnValueOnce(
+      Promise.reject(error),
+    );
+
+    await simulateValidSubmit(subject);
+
+    testElementText(subject, 'error-message', error.message);
+    testErrorWrapperChildCount(subject, 1);
+  });
+
   test('Should go to signup page', async () => {
     const { subject } = makeSubject();
     const signup = subject.getByText(/Criar conta/);
