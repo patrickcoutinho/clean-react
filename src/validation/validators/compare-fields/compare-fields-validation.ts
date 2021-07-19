@@ -7,8 +7,7 @@ export class CompareFieldsValidation implements FieldValidation {
     private readonly valueToCompare: string,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(value: string): InvalidFieldError | null {
-    return new InvalidFieldError();
+    return value !== this.valueToCompare ? new InvalidFieldError() : null;
   }
 }
