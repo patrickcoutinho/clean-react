@@ -14,4 +14,12 @@ describe('CompareFieldsValidation', () => {
 
     expect(error).toEqual(new InvalidFieldError());
   });
+
+  test('Should returns falsy if compare is valid', () => {
+    const valueToCampare = faker.random.word();
+    const subject = makeSubject(valueToCampare);
+    const error = subject.validate(valueToCampare);
+
+    expect(error).toBeFalsy();
+  });
 });
