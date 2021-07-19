@@ -1,4 +1,6 @@
 import { HttpPostClientSpy } from '@/data/mocks';
+import { HttpStatusCode } from '@/data/protocols/http';
+import { EmailInUseError } from '@/domain/errors';
 import { addAccountParamsMock } from '@/domain/mocks';
 import { AccountModel } from '@/domain/models';
 import { AddAccountParams } from '@/domain/usecases';
@@ -33,5 +35,16 @@ describe('RemoteAddAccount', () => {
     await subject.add(addAccountParams);
 
     expect(httpPostClientSpy.body).toBe(addAccountParams);
+  });
+
+  test('Should trrows EmailInUseError if HttpPostClient returns 403', async () => {
+    const { subject, httpPostClientSpy } = makeSubject(fakeUrl);
+    httpPostClientSpy.response = {
+      statusCode: HttpStatusCode.forbidden,
+    };
+
+    const promise = subject.add(addAccountParamsMock());
+
+    await expect(promise).rejects.toThrow(new EmailInUseError());
   });
 });
