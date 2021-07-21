@@ -6,21 +6,17 @@ import {
   FormStatus,
 } from '@/presentation/components';
 import Context from '@/presentation/contexts/form/form-context';
-import { Link } from 'react-router-dom';
 import Styles from './signup-styles.scss';
 
 const SignUp: React.FC = () => {
   const [state, setState] = useState({
     isLoading: false,
-    name: '',
-    email: '',
-    password: '',
-    passwordConfirmation: '',
     error: {
       message: '',
-      name: '',
-      email: '',
-      password: '',
+      name: 'Campo obrigatório',
+      email: 'Campo obrigatório',
+      password: 'Campo obrigatório',
+      passwordConfirmation: 'Campo obrigatório',
     },
   });
 
@@ -50,10 +46,10 @@ const SignUp: React.FC = () => {
             name="passwordConfirmation"
             placeholder="Confirme a senha digitada"
           />
-          <button className={Styles.submit} type="submit">
+          <button data-testid="submit" disabled className={Styles.submit} type="submit">
             Enviar
           </button>
-          <Link to="/login" className={Styles.link}>Voltar para login</Link>
+          <span className={Styles.link}>Voltar para login</span>
           <FormStatus />
         </form>
       </Context.Provider>
