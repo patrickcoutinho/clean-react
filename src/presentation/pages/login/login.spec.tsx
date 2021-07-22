@@ -55,25 +55,9 @@ type SimulateValidSubmitTypes = {
   password: string
 };
 
-const populateEmailInput = (subject: RenderResult): string => {
-  const email = faker.internet.email();
-  const emailInput = subject.getByTestId('email');
-  fireEvent.input(emailInput, { target: { value: email } });
-
-  return email;
-};
-
-const populatePasswordInput = (subject: RenderResult): string => {
-  const password = faker.internet.password();
-  const passwordInput = subject.getByTestId('password');
-  fireEvent.input(passwordInput, { target: { value: password } });
-
-  return password;
-};
-
 const simulateValidSubmit = async (subject: RenderResult): Promise<SimulateValidSubmitTypes> => {
-  const email = populateEmailInput(subject);
-  const password = populatePasswordInput(subject);
+  const email = formHelper.populateInput(subject, 'email');
+  const password = formHelper.populateInput(subject, 'password');
 
   const form = subject.getByTestId('form');
   fireEvent.submit(form);
@@ -118,7 +102,7 @@ describe('Login Page', () => {
       validationErrror: validationError,
     });
 
-    populateEmailInput(subject);
+    formHelper.populateInput(subject, 'email');
     formHelper.testStatusForField(subject, 'email', validationError);
   });
 
@@ -127,29 +111,29 @@ describe('Login Page', () => {
       validationErrror: validationError,
     });
 
-    populatePasswordInput(subject);
+    formHelper.populateInput(subject, 'password');
     formHelper.testStatusForField(subject, 'password', validationError);
   });
 
   test('Should show valid email if validation succeeds', () => {
     const { subject } = makeSubject();
 
-    populateEmailInput(subject);
+    formHelper.populateInput(subject, 'email');
     formHelper.testStatusForField(subject, 'email');
   });
 
   test('Should show valid password if validation succeeds', () => {
     const { subject } = makeSubject();
 
-    populatePasswordInput(subject);
+    formHelper.populateInput(subject, 'password');
     formHelper.testStatusForField(subject, 'password');
   });
 
   test('Should enable submit button if form is valid', () => {
     const { subject } = makeSubject();
 
-    populateEmailInput(subject);
-    populatePasswordInput(subject);
+    formHelper.populateInput(subject, 'email');
+    formHelper.populateInput(subject, 'password');
 
     formHelper.testButtonIsDisabled(subject, 'login-button', false);
   });
