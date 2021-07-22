@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Footer,
   LoginHeader,
@@ -6,19 +6,44 @@ import {
   FormStatus,
 } from '@/presentation/components';
 import Context from '@/presentation/contexts/form/form-context';
+import { Validation } from '@/presentation/protocols/validation';
 import Styles from './signup-styles.scss';
 
-const SignUp: React.FC = () => {
+type Props = {
+  validation: Validation
+};
+
+const SignUp: React.FC<Props> = ({ validation }: Props) => {
   const [state, setState] = useState({
     isLoading: false,
+    name: '',
+    email: '',
+    password: '',
+    passwordConfirmation: '',
     error: {
       message: '',
-      name: 'Campo obrigatório',
-      email: 'Campo obrigatório',
-      password: 'Campo obrigatório',
-      passwordConfirmation: 'Campo obrigatório',
+      name: '',
+      email: '',
+      password: '',
+      passwordConfirmation: '',
     },
   });
+
+  useEffect(() => {
+    setState({
+      ...state,
+      error: {
+        ...state.error,
+        name: validation.validate('name', state.name),
+        email: validation.validate('email', state.email),
+        password: validation.validate('password', state.password),
+        passwordConfirmation: validation.validate(
+          'passwordConfirmation',
+          state.passwordConfirmation,
+        ),
+      },
+    });
+  }, [state.name]);
 
   return (
     <div className={Styles.signup}>

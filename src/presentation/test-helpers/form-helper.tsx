@@ -1,4 +1,5 @@
-import { RenderResult } from '@testing-library/react';
+import { fireEvent, RenderResult } from '@testing-library/react';
+import faker from 'faker';
 
 export const testChildCount = (
   subject: RenderResult,
@@ -27,4 +28,12 @@ export const testStatusForField = (
 
   expect(fieldStatus.title).toBe(validationError || 'Tudo certo!');
   expect(fieldStatus.textContent).toBe(validationError ? '🔴' : '🟢');
+};
+
+export const populateInput = (subject: RenderResult, inputName: string): string => {
+  const value = faker.random.word();
+  const input = subject.getByTestId(inputName);
+  fireEvent.input(input, { target: { value } });
+
+  return value;
 };
