@@ -1,6 +1,5 @@
 import React from 'react';
 import { Router } from 'react-router-dom';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { createMemoryHistory } from 'history';
 import {
   cleanup,
@@ -17,6 +16,7 @@ import {
 } from '@/presentation/mocks';
 import { InvalidCredentialsError } from '@/domain/errors';
 import { Login } from '@/presentation/pages';
+import { formHelper } from '@/presentation/test-helpers';
 
 type SubjectTypes = {
   subject: RenderResult
@@ -83,22 +83,6 @@ const simulateValidSubmit = async (subject: RenderResult): Promise<SimulateValid
   return { email, password };
 };
 
-const testStatusForField = (
-  subject: RenderResult,
-  fieldName: string,
-  validationError?: string,
-): void => {
-  const fieldStatus = subject.getByTestId(`${fieldName}-status`);
-
-  expect(fieldStatus.title).toBe(validationError || 'Tudo certo!');
-  expect(fieldStatus.textContent).toBe(validationError ? '🔴' : '🟢');
-};
-
-const testErrorWrapperChildCount = (subject: RenderResult, count: number): void => {
-  const errorWrapper = subject.getByTestId('error-wrapper');
-  expect(errorWrapper.childElementCount).toBe(count);
-};
-
 const testElementExists = (subject: RenderResult, elementTestId: string): void => {
   const element = subject.getByTestId(elementTestId);
   expect(element).toBeTruthy();
@@ -113,15 +97,6 @@ const testElementText = (
   expect(element.textContent).toBe(text);
 };
 
-const testButtonIsDisabled = (
-  subject: RenderResult,
-  elementTestId: string,
-  isDisabled: boolean,
-): void => {
-  const submitButtom = subject.getByTestId(elementTestId) as HTMLButtonElement;
-  expect(submitButtom.disabled).toBe(isDisabled);
-};
-
 const validationError = faker.random.words();
 
 describe('Login Page', () => {
@@ -132,10 +107,10 @@ describe('Login Page', () => {
       validationErrror: validationError,
     });
 
-    testErrorWrapperChildCount(subject, 0);
-    testButtonIsDisabled(subject, 'login-button', true);
-    testStatusForField(subject, 'email', validationError);
-    testStatusForField(subject, 'password', validationError);
+    formHelper.testChildCount(subject, 'error-wrapper', 0);
+    formHelper.testButtonIsDisabled(subject, 'login-button', true);
+    formHelper.testStatusForField(subject, 'email', validationError);
+    formHelper.testStatusForField(subject, 'password', validationError);
   });
 
   test('Should show email error if validation fails', () => {
@@ -144,7 +119,7 @@ describe('Login Page', () => {
     });
 
     populateEmailInput(subject);
-    testStatusForField(subject, 'email', validationError);
+    formHelper.testStatusForField(subject, 'email', validationError);
   });
 
   test('Should show password error if validation fails', () => {
@@ -153,21 +128,21 @@ describe('Login Page', () => {
     });
 
     populatePasswordInput(subject);
-    testStatusForField(subject, 'password', validationError);
+    formHelper.testStatusForField(subject, 'password', validationError);
   });
 
   test('Should show valid email if validation succeeds', () => {
     const { subject } = makeSubject();
 
     populateEmailInput(subject);
-    testStatusForField(subject, 'email');
+    formHelper.testStatusForField(subject, 'email');
   });
 
   test('Should show valid password if validation succeeds', () => {
     const { subject } = makeSubject();
 
     populatePasswordInput(subject);
-    testStatusForField(subject, 'password');
+    formHelper.testStatusForField(subject, 'password');
   });
 
   test('Should enable submit button if form is valid', () => {
@@ -176,7 +151,7 @@ describe('Login Page', () => {
     populateEmailInput(subject);
     populatePasswordInput(subject);
 
-    testButtonIsDisabled(subject, 'login-button', false);
+    formHelper.testButtonIsDisabled(subject, 'login-button', false);
   });
 
   test('Should show spinnner on submit', async () => {
@@ -227,7 +202,7 @@ describe('Login Page', () => {
     await simulateValidSubmit(subject);
 
     testElementText(subject, 'error-message', error.message);
-    testErrorWrapperChildCount(subject, 1);
+    formHelper.testChildCount(subject, 'error-wrapper', 1);
   });
 
   test('Should call SaveAccessToken on success', async () => {
@@ -253,7 +228,7 @@ describe('Login Page', () => {
     await simulateValidSubmit(subject);
 
     testElementText(subject, 'error-message', error.message);
-    testErrorWrapperChildCount(subject, 1);
+    formHelper.testChildCount(subject, 'error-wrapper', 1);
   });
 
   test('Should go to signup page', async () => {
