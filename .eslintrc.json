@@ -27,6 +27,7 @@
     "react/jsx-props-no-spreading": "off",
     "no-restricted-syntax": "off",
     "array-callback-return": "off",
+    "import/no-extraneous-dependencies": "off",
     "@typescript-eslint/quotes": [
       "error",
       "single",
