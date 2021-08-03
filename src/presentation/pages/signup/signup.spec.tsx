@@ -50,4 +50,13 @@ describe('SignUp Page', () => {
     formHelper.populateInput(subject, 'name');
     formHelper.testStatusForField(subject, 'name', validationError);
   });
+
+  test('Should show email error if validation fails', () => {
+    const { subject } = makeSubject({
+      validationErrror: validationError,
+    });
+
+    formHelper.populateInput(subject, 'email');
+    formHelper.testStatusForField(subject, 'email', validationError);
+  });
 });
