@@ -43,7 +43,7 @@ const SignUp: React.FC<Props> = ({ validation }: Props) => {
         ),
       },
     });
-  }, [state.name]);
+  }, [state.name, state.email]);
 
   return (
     <div className={Styles.signup}>
